@@ -40,33 +40,31 @@ class DraftResource(SingletonResource):
 
     default_config = DraftResourceConfig
 
-    def __init__(self, config=None, service_cls=DraftService,
-                 *args, **kwargs):
+    def __init__(self, service=None, *args, **kwargs):
         """Constructor."""
-        super(DraftResource, self).__init__(
-            config=config if config else self.default_config,
-            *args,
-            **kwargs
-        )
-        self.service_cls = service_cls
+        super(DraftResource, self).__init__(*args, **kwargs)
+        self.service = service or DraftService()
 
     def read(self, *args, **kwargs):
         """Read an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.read(), 200
 
     def create(self, *args, **kwargs):
         """Create an item."""
         data = resource_requestctx.request_content
         identity = g.identity
-        return self.service_cls.create(data, identity), 200
+        return self.service.create(data, identity), 200
 
     def update(self, *args, **kwargs):
         """Update an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.update(), 200
 
     def delete(self, *args, **kwargs):
         """Delete an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.delete(), 200
 
 
 class DraftVersionResourceConfig(ResourceConfig):

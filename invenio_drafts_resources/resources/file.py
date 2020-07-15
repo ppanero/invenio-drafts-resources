@@ -14,6 +14,8 @@ from flask_resources.context import resource_requestctx
 # TODO: expose correctly in flask-resources
 from flask_resources.resources import ResourceConfig
 
+from ..services import DraftFileMetadataService, DraftFileService
+
 # TODO: Get rid of them when implementation is done
 STUB_ITEM_RESULT = ({"TODO": "IMPLEMENT ME"}, 200)
 STUB_LIST_RESULT = ([{"TODO": "IMPLEMENT ME"}], 200)
@@ -31,35 +33,47 @@ class DraftFileResource(CollectionResource):
 
     default_config = DraftFileResourceConfig
 
+    def __init__(self, service=None, *args, **kwargs):
+        """Constructor."""
+        super(DraftFileResource, self).__init__(*args, **kwargs)
+        self.service = service or DraftFileMetadataService()
+
     # List level
     def search(self, *args, **kwargs):
         """Search over items."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.search(), 200
 
     def create(self, *args, **kwargs):
         """Create an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.create(), 200
 
     def update_all(self, *args, **kwargs):
         """Delete an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.update_all(), 200
 
     def delete_all(self, *args, **kwargs):
         """Delete an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.delete_all(), 200
 
     # Item level
     def read(self, *args, **kwargs):
         """Read an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.read(), 200
 
     def update(self, *args, **kwargs):
         """Update an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.update(), 200
 
     def delete(self, *args, **kwargs):
         """Delete an item."""
-        return STUB_ITEM_RESULT
+        # TODO: IMPLEMENT ME!
+        return self.service.delete(), 200
 
 
 class DraftFileActionResourceConfig(ResourceConfig):
@@ -78,8 +92,13 @@ class DraftFileActionResource(SingletonResource):
 
     default_config = DraftFileResourceConfig
 
+    def __init__(self, service=None, *args, **kwargs):
+        """Constructor."""
+        super(DraftFileResource, self).__init__(*args, **kwargs)
+        self.service = service or DraftFileService()
+
     def read(self, *args, **kwargs):
         """Read an item."""
         if resource_requestctx.route["action"] == "download":
-            return STUB_ITEM_RESULT
+            return self.service.read()
         return {}, 200
