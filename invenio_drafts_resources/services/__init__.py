@@ -12,13 +12,17 @@
 from .draft_file_metadata_service import DraftFileMetadataService, \
     DraftFileMetadataServiceConfig
 from .draft_file_service import DraftFileService, DraftFileServiceConfig
-
-# from .draft_service import DraftService, DraftServiceConfig
-# from .file_service import DraftFileService, DraftFileServiceConfig
+from .draft_service import DraftService, DraftServiceConfig
+from .draft_version_service import DraftVersionService, \
+    DraftVersionServiceConfig
 
 __all__ = (
     "DraftFileMetadataService",
     "DraftFileMetadataServiceConfig",
     "DraftFileService",
     "DraftFileServiceConfig",
+    "DraftService",
+    "DraftServiceConfig",
+    "DraftVersionService",
+    "DraftVersionServiceConfig"
 )
