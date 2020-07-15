@@ -10,6 +10,7 @@
 
 """Draft Service."""
 
+from invenio_records_resources.resource_unit import IdentifiedRecord
 from invenio_records_resources.services import RecordService, \
     RecordServiceConfig
 
@@ -29,6 +30,7 @@ class DraftServiceConfig(RecordServiceConfig):
 
     # DraftService configuration
     # TODO: FILL ME!
+    draft_of_resource_unit_cls = IdentifiedRecord
 
 
 class DraftService(RecordService):
@@ -69,3 +71,8 @@ class DraftService(RecordService):
         # High likelihood that we can just rely on RecordService here
         # and simply configure DraftServiceConfig appropriately
         return self.resource_unit_cls()
+
+    def publish(self, id_, identity):
+        """Publish a draft."""
+        # TODO: IMPLEMENT ME!
+        return self.draft_of_resource_unit_cls()

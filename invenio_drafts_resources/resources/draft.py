@@ -107,8 +107,13 @@ class DraftActionResource(SingletonResource):
 
     default_config = DraftActionResourceConfig
 
+    def __init__(self, service=None, *args, **kwargs):
+        """Constructor."""
+        super(DraftActionResource, self).__init__(*args, **kwargs)
+        self.service = service or DraftService()
+
     def create(self, *args, **kwargs):
         """Any POST business logic."""
         if resource_requestctx.route["action"] == "publish":
-            return STUB_ITEM_RESULT
+            return self.service.publish()
         return {}, 200
