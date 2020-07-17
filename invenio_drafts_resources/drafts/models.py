@@ -32,10 +32,7 @@ class DraftMetadataBase(Timestamp):
         primary_key=True,
         default=uuid.uuid4,
     )
-    """Draft identifier."""
-
-    fork_id = db.Column(UUIDType)
-    """Draft identifier, it is the same than the record it is draft of"""
+    """Draft identifier, it is the same than the record it is draft of."""
 
     fork_version_id = db.Column(db.Integer)
     """Version id of the record it is draft of."""
@@ -51,7 +48,7 @@ class DraftMetadataBase(Timestamp):
         default=datetime.utcnow,
         nullable=True
     )
-    """Specifies when the it expires. If `NULL` the draft does not expire"""
+    """Specifies when the it expires. If `NULL` the draft does not expire."""
 
     json = db.Column(
         db.JSON().with_variant(

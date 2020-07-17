@@ -13,6 +13,7 @@
 from invenio_db import db
 from invenio_records_resources.services import MarshmallowDataValidator, \
     RecordService, RecordServiceConfig
+from werkzeug.utils import cached_property
 
 from ..resource_units import IdentifiedRecordDraft
 from .permissions import DraftPermissionPolicy
@@ -27,13 +28,13 @@ class RecordDraftServiceConfig(RecordServiceConfig):
 
     # RecordService configuration
     resource_unit_cls = IdentifiedRecordDraft
-    data_validator = MarshmallowDataValidator(
-        schema=DraftMetadataSchemaJSONV1
-    )
 
     # DraftService configuration.
     # WHY: We want to force user input choice here.
     draft_cls = None
+    draft_data_validator = MarshmallowDataValidator(
+        schema=DraftMetadataSchemaJSONV1
+    )
 
 
 class RecordDraftService(RecordService):
@@ -41,13 +42,26 @@ class RecordDraftService(RecordService):
 
     default_config = RecordDraftServiceConfig
 
+    @cached_property
+    def draft_data_validator(self):
+        """Returns an instance of the draft data validator."""
+        return self.config.draft_data_validator
+
+    @cached_property
+    def draft_resolver(self):
+        """Factory for creating a draft resolver instance."""
+        return self.config.resolver_cls(
+            pid_type=self.config.resolver_pid_type,
+            getter=self.config.draft_cls.get_record,
+            registered_only=False
+        )
+
+    def resolve_draft(self, id_):
+        """Resolve a persistent identifier to a record draft."""
+        return self.draft_resolver.resolve(id_)
+
     # High-level API
     # Inherits record read, search, create, delete and update
-
-    def _index_draft(self, draft):
-        indexer = self.indexer()
-        if indexer:
-            indexer.index(draft)
 
     def create(self, data, identity):
         """Create a draft for a new record.
@@ -55,10 +69,18 @@ class RecordDraftService(RecordService):
         It does not eagerly create the associated record.
         """
         self.require_permission(identity, "create")
-        validated_data = self.data_validator().validate(data)
+        validated_data = self.draft_data_validator.validate(data)
         draft = self.config.draft_cls.create(validated_data)
+        # Create PID (New) associated to the draft UUID
+        pid = self.minter(
+            record_uuid=draft.id,
+            data=draft,
+            with_obj_type=None
+        )
+
         db.session.commit()  # Persist DB
-        self._index_draft(draft)
+        if self.indexer:
+            self.indexer.index(draft)
 
         return self.config.resource_unit_cls(pid=None, record=draft)
 
@@ -70,14 +92,16 @@ class RecordDraftService(RecordService):
         pid, record = self.resolve(id_)
         # FIXME: How to check permission on the record?
         self.require_permission(identity, "create")
-        validated_data = self.data_validator().validate(data)
+        validated_data = self.draft_data_validator.validate(data)
         draft = self.config.draft_cls.create(validated_data, record)
         db.session.commit()  # Persist DB
-        self._index_draft(draft)
+        if self.indexer:
+            self.indexer.index(draft)
 
         return self.config.resource_unit_cls(pid=pid, record=draft)
 
     def publish(self, id_, identity):
         """Publish a draft."""
         # TODO: IMPLEMENT ME!
+        # pid, record = self.resolve(id_, obj_getter=Drafts.get_record)
         return self.config.draft_of_resource_unit_cls()
