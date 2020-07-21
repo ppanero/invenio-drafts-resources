@@ -82,7 +82,7 @@ class RecordDraftService(RecordService):
         if self.indexer:
             self.indexer.index(draft)
 
-        return self.config.resource_unit_cls(pid=None, record=draft)
+        return self.config.resource_unit_cls(pid=pid, record=draft)
 
     def edit(self, id_, data, identity):
         """Create a draft for an existing record.
@@ -103,5 +103,4 @@ class RecordDraftService(RecordService):
     def publish(self, id_, identity):
         """Publish a draft."""
         # TODO: IMPLEMENT ME!
-        # pid, record = self.resolve(id_, obj_getter=Drafts.get_record)
         return self.config.draft_of_resource_unit_cls()

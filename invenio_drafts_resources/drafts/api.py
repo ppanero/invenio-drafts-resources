@@ -44,7 +44,7 @@ class DraftBase(Record):
             draft.validate(**kwargs)
 
             draft.model = cls.model_cls(
-                fork_id=record.id if record else None,
+                id=record.id if record else None,
                 fork_version_id=record.revision_id if record else None,
                 expiry_date=draft.expiry_date,
                 status=draft.status,
