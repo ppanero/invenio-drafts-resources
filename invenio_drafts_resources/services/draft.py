@@ -134,8 +134,10 @@ class RecordDraftService(RecordService):
         draft.delete()
         db.session.commit()  # Persist DB
         # Index the record
-        if self.indexer:
-            self.indexer.index(record)
-            self.indexer.delete(draft)
+        # FIXME: It is failing due to re-indexing of the same UUID with lower
+        # version. Flush does not seem to have effect.
+        # if self.indexer:
+        #     self.indexer.delete(draft)
+        #     self.indexer.index(record)
 
         return self.resource_unit(pid=pid, record=record)
