@@ -24,9 +24,6 @@ class DraftMetadataBase(Timestamp):
     properties that are automatically updated.
     """
 
-    # Enables SQLAlchemy-Continuum versioning
-    __versioned__ = {}
-
     id = db.Column(
         UUIDType,
         primary_key=True,
