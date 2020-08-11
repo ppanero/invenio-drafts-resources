@@ -40,9 +40,6 @@ class DraftMetadataBase(Timestamp):
     version_id = db.Column(db.Integer, nullable=False)
     """Used by SQLAlchemy for optimistic concurrency control."""
 
-    status = db.Column(db.String(255), default="draft", nullable=False)
-    """Status for workflow management."""
-
     expiry_date = db.Column(
         db.DateTime().with_variant(mysql.DATETIME(fsp=6), "mysql"),
         default=datetime.utcnow,

@@ -29,7 +29,6 @@ class DraftJSONSerializer(RecordJSONSerializer):
             pid=pid,
             metadata=draft.dumps(),
             revision=draft.revision_id,
-            status=draft.status,
             created=(
                 pytz.utc.localize(draft.created).isoformat()
                 if draft.created and not draft.created.tzinfo
