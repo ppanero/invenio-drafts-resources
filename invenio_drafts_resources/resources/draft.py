@@ -124,5 +124,5 @@ class DraftActionResource(SingletonResource):
         if resource_requestctx.route["action"] == "publish":
             identity = g.identity
             id_ = resource_requestctx.route["pid_value"]
-            return self.service.publish(id_, identity), 200
-        return {}, 200
+            return self.service.publish(id_, identity), 202
+        return {}, 202

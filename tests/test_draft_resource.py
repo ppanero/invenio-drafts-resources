@@ -103,7 +103,7 @@ def test_publish_draft_of_new_record(client, input_record):
         "/records/{}/draft/actions/publish".format(recid), headers=HEADERS
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     response_fields = response.json.keys()
     fields_to_check = ['pid', 'metadata', 'revision',
                        'created', 'updated', 'links']
