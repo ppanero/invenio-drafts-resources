@@ -95,7 +95,7 @@ class DraftVersionResource(CollectionResource):
         identity = g.identity
         id_ = resource_requestctx.route["pid_value"]
 
-        return self.service.version(id_, identity), 201
+        return self.service.new_version(id_, identity), 201
 
 
 class DraftActionResourceConfig(ResourceConfig):

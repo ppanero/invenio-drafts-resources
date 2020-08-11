@@ -189,7 +189,7 @@ def test_create_new_version_of_record(app, draft_service, input_record,
     assert identified_record_1.record.revision_id == 0
 
     # Create new version
-    identified_draft_2 = draft_service.version(
+    identified_draft_2 = draft_service.new_version(
         id_=identified_record_1.id, identity=fake_identity
     )
 

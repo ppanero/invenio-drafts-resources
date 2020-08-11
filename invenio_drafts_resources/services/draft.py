@@ -211,7 +211,7 @@ class RecordDraftService(RecordService):
                 record=self._publish_existing(validated_data, draft)
             )
 
-    def version(self, id_, identity):
+    def new_version(self, id_, identity):
         """Create a new version of a record."""
         self.require_permission(identity, "create")
         # Get draft
