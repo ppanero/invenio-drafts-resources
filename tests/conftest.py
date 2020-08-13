@@ -22,8 +22,6 @@ from invenio_records.models import RecordMetadataBase
 from invenio_records_permissions.generators import AnyUser
 from invenio_records_permissions.policies.records import RecordPermissionPolicy
 from invenio_records_resources.resources import RecordResource
-from invenio_records_resources.services import RecordService, \
-    RecordServiceConfig
 from invenio_search import RecordsSearch
 
 from invenio_drafts_resources.drafts import DraftBase, DraftMetadataBase
@@ -79,14 +77,6 @@ class TestSearch(RecordsSearch):
         """Test configuration."""
 
         index = "records"
-
-
-class CustomRecordServiceConfig(RecordServiceConfig):
-    """Custom draft service config."""
-
-    record_cls = CustomRecord
-    search_cls = TestSearch
-    permission_policy_cls = AnyUserPermissionPolicy
 
 
 class CustomPIDManagerConfig(PIDManagerConfig):
@@ -149,11 +139,6 @@ def base_app(base_app):
 def _draft_service():
     """Create a draft service."""
     return RecordDraftService(config=CustomRecordDraftServiceConfig)
-
-
-def _record_service():
-    """Create a record service."""
-    return RecordService(config=CustomRecordServiceConfig)
 
 
 class CustomDraftActionResourceConfig(DraftActionResourceConfig):
