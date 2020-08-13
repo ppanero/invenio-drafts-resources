@@ -13,6 +13,7 @@ from flask import g
 from flask_resources import CollectionResource, SingletonResource
 from flask_resources.context import resource_requestctx
 
+from ..errors import ActionNotConfigured, CommandNotImplemented
 from ..services import RecordDraftService
 from .draft_config import DraftActionResourceConfig, DraftResourceConfig, \
     DraftVersionResourceConfig
@@ -89,9 +90,18 @@ class DraftActionResource(SingletonResource):
 
     def create(self):
         """Any POST business logic."""
-        # FIXME: Implement as CMD patter loaded from config
-        if resource_requestctx.route["action"] == "publish":
-            identity = g.identity
-            id_ = resource_requestctx.route["pid_value"]
-            return self.service.publish(id_, identity), 202
-        return {}, 202
+        action = resource_requestctx.route["action"]
+        try:
+            cmd_name = self.config.action_commands[action]
+            cmd_func = getattr(self.service, command)
+        except KeyError:
+            raise ActionNotConfigured(action=action)
+        except NameError:
+            raise CommandNotImplemented(cmd_name)
+
+        # NOTE: Due to the route we assume the commands only need
+        # id_ and identity
+        identity = g.identity
+        id_ = resource_requestctx.route["pid_value"]
+
+        return cmd_func(id_, identity), 202

@@ -28,7 +28,7 @@ from invenio_search import RecordsSearch
 
 from invenio_drafts_resources.drafts import DraftBase, DraftMetadataBase
 from invenio_drafts_resources.resources import DraftActionResource, \
-    DraftResource, DraftVersionResource
+    DraftActionResourceConfig, DraftResource, DraftVersionResource
 from invenio_drafts_resources.services import RecordDraftService, \
     RecordDraftServiceConfig
 from invenio_drafts_resources.services.pid_manager import PIDManager, \
@@ -156,6 +156,15 @@ def _record_service():
     return RecordService(config=CustomRecordServiceConfig)
 
 
+class CustomDraftActionResourceConfig(DraftActionResourceConfig):
+    """Draft action resource config."""
+
+    action_commands = {
+        "publish": "publish",
+        "command": "not_implemented"
+    }
+
+
 @pytest.fixture(scope="module")
 def app(app):
     """Application factory fixture."""
@@ -167,7 +176,8 @@ def app(app):
             service=_draft_service()
         ).as_blueprint("draft_resource")
         draft_action_bp = DraftActionResource(
-            service=_draft_service()
+            service=_draft_service(),
+            config=CustomDraftActionResourceConfig
         ).as_blueprint("draft_action_resource")
         draft_version_bp = DraftVersionResource(
             service=_draft_service()
