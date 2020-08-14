@@ -93,10 +93,10 @@ class DraftActionResource(SingletonResource):
         action = resource_requestctx.route["action"]
         try:
             cmd_name = self.config.action_commands[action]
-            cmd_func = getattr(self.service, command)
+            cmd_func = getattr(self.service, cmd_name)
         except KeyError:
             raise ActionNotConfigured(action=action)
-        except NameError:
+        except AttributeError:
             raise CommandNotImplemented(cmd_name)
 
         # NOTE: Due to the route we assume the commands only need
