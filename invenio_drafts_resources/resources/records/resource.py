@@ -28,3 +28,19 @@ class RecordResource(_RecordResource):
         item = self.service.create(
             g.identity, data, links_config=self.config.draft_links_config)
         return item.to_dict(), 201
+
+    def search(self):
+        """Perform a search over the items."""
+        identity = g.identity
+        status = resource_requestctx.url_args.pop("status", None)
+
+        if not status:  # To account for `?status=`, which ends up in []
+            status = ["published"]
+
+        hits = self.service.search(
+            identity=identity,
+            params=resource_requestctx.url_args,
+            links_config=self.config.links_config,
+            status="published" if "published" in status else "draft",
+        )
+        return hits.to_dict(), 200

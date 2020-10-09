@@ -45,7 +45,10 @@ def test_record_indexing(app, db, es, example_record, indexer):
 
     # Retrieve document from ES
     data = current_search_client.get(
-        'drafts-draft-v1.0.0', id=example_record.id, doc_type='_doc')
+        'draftsresources-drafts-draft-v1.0.0',
+        id=example_record.id,
+        doc_type='_doc'
+    )
 
     # Loads the ES data and compare
     record = Draft.loads(data['_source'])

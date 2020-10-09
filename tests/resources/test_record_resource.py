@@ -13,6 +13,7 @@ import json
 import time
 
 import pytest
+from mock_module.api import Draft, Record
 from sqlalchemy.orm.exc import NoResultFound
 
 from invenio_drafts_resources.resources import DraftActionResource, \
@@ -46,7 +47,7 @@ def _assert_single_item_response(response):
 #
 
 
-def test_create_draft(client, input_data):
+def test_create_draft(client, input_data, es_clear):
     """Test draft creation of a non-existing record."""
     response = client.post(
         "/mocks", data=json.dumps(input_data), headers=HEADERS)
@@ -55,7 +56,7 @@ def test_create_draft(client, input_data):
     _assert_single_item_response(response)
 
 
-def test_read_draft(client, input_data):
+def test_read_draft(client, input_data, es_clear):
     response = client.post(
         "/mocks", data=json.dumps(input_data), headers=HEADERS)
 
@@ -70,7 +71,7 @@ def test_read_draft(client, input_data):
     _assert_single_item_response(response)
 
 
-def test_update_draft(client, input_data):
+def test_update_draft(client, input_data, es_clear):
     response = client.post(
         "/mocks", data=json.dumps(input_data), headers=HEADERS)
 
@@ -104,7 +105,7 @@ def test_update_draft(client, input_data):
     assert update_response.json["id"] == recid
 
 
-def test_delete_draft(client, input_data):
+def test_delete_draft(client, input_data, es_clear):
     response = client.post(
         "/mocks", data=json.dumps(input_data), headers=HEADERS)
 
@@ -145,7 +146,7 @@ def _create_and_publish(client, input_data):
     return recid
 
 
-def test_publish_draft(client, input_data):
+def test_publish_draft(client, input_data, es_clear):
     """Test draft publication of a non-existing record.
 
     It has to first create said draft.
@@ -168,7 +169,44 @@ def test_publish_draft(client, input_data):
     _assert_single_item_response(response)
 
 
-def test_action_not_configured(client, identity_simple):
+def test_search_records_and_drafts(client, input_data, es_clear):
+    """Tests the search over the records index.
+
+    Note: The three use cases are set in the same test so there is the
+          possibility of failure. Meaning that if search is not done
+          correctly more than one record/draft will be returned.
+    """
+    # Create a draft
+    response = client.post(
+        "/mocks", data=json.dumps(input_data), headers=HEADERS)
+    assert response.status_code == 201
+    recid = response.json['id']
+
+    Draft.index.refresh()
+
+    response = client.get("/mocks?status=draft", headers=HEADERS)
+    assert response.status_code == 200
+    assert response.json['hits']['total'] == 1
+    assert response.json['hits']['hits'][0]['id'] == recid
+
+    # Create a record
+    recid = _create_and_publish(client, input_data)
+    Record.index.refresh()
+
+    response = client.get("/mocks?status=published", headers=HEADERS)
+    assert response.status_code == 200
+    assert response.json['hits']['total'] == 1
+    assert response.json['hits']['hits'][0]['id'] == recid
+
+    # Default to record search
+    response = client.get("/mocks", headers=HEADERS)
+
+    assert response.status_code == 200
+    assert response.json['hits']['total'] == 1
+    assert response.json['hits']['hits'][0]['id'] == recid
+
+
+def test_action_not_configured(client, es_clear):
     """Tests a non configured action call."""
     # NOTE: recid can be dummy since it won't reach pass the resource view
     response = client.post(
@@ -177,7 +215,7 @@ def test_action_not_configured(client, identity_simple):
     assert response.status_code == 404
 
 
-def test_command_not_implemented(client, identity_simple):
+def test_command_not_implemented(client, es_clear):
     """Tests a configured action without implemented function."""
     # NOTE: recid can be dummy since it won't reach pass the resource view
     response = client.post(
@@ -191,8 +229,7 @@ def test_command_not_implemented(client, identity_simple):
 # therefore these tests do not assert their output)
 #
 
-def test_create_publish_new_revision(client, input_data,
-                                     identity_simple):
+def test_create_publish_new_revision(client, input_data, es_clear):
     """Test draft creation of an existing record and publish it."""
     recid = _create_and_publish(client, input_data)
 
@@ -245,7 +282,7 @@ def test_create_publish_new_revision(client, input_data,
         input_data["metadata"]["title"]
 
 
-def test_mutiple_edit(client, identity_simple, input_data):
+def test_mutiple_edit(client, input_data, es_clear):
     """Test the revision_id when editing record multiple times.
 
     This tests the `edit` service method.
@@ -281,8 +318,7 @@ def test_mutiple_edit(client, identity_simple, input_data):
     assert response.json['revision_id'] == 7
 
 
-def test_create_publish_new_version(client, input_data,
-                                    identity_simple):
+def test_create_publish_new_version(client, input_data):
     """Creates a new version of a record.
 
     Publishes the draft to obtain 2 versions of a record.

@@ -20,7 +20,9 @@ class Record(RecordBase):
         '$schema', 'http://localhost/schemas/records/record-v1.0.0.json')
 
     index = IndexField(
-        'records-record-v1.0.0', search_alias='draftsresources-records')
+        'draftsresources-records-record-v1.0.0',
+        search_alias='draftsresources-records'
+    )
 
 
 class Draft(DraftBase):
@@ -34,4 +36,6 @@ class Draft(DraftBase):
         '$schema', 'http://localhost/schemas/records/record-v1.0.0.json')
 
     index = IndexField(
-        'drafts-draft-v1.0.0', search_alias='draftsresources-drafts')
+        'draftsresources-drafts-draft-v1.0.0',
+        search_alias='draftsresources-drafts'
+    )
