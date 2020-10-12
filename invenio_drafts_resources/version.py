@@ -13,4 +13,4 @@ This file is imported by ``invenio_drafts_resources.__init__``,
 and parsed by ``setup.py``.
 """
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
